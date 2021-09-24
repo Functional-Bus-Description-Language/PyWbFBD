@@ -39,7 +39,10 @@ Usage:
 
 Flags:
   -h, --help     Display help.
-  -v, --version  Display version."""
+  -v, --version  Display version.
+
+Options:
+  --path  Path for target directories with output files."""
 
 
 def print_target_help(target):
@@ -62,13 +65,6 @@ def print_target_help(target):
 
 
 def parse(version):
-    cmd_line_args = {}
-    current_target = None
-    current_option = None
-    expect_argument = False
-
-    in_global_args = True
-
     if len(sys.argv) == 1:
         raise Exception("Missing target and main file.")
 
@@ -86,6 +82,13 @@ def parse(version):
             else:
                 raise Exception(f"'{arg}' is not a valid target.\n")
 
+    cmd_line_args = {}
+    current_target = None
+    current_option = None
+    expect_argument = False
+
+    in_global_args = True
+
     for i, arg in enumerate(sys.argv[1:]):
         if i == len(sys.argv) - 2:
             if not arg.startswith('-'):
@@ -98,15 +101,24 @@ def parse(version):
             elif arg in ['-v', '--version']:
                 print(version)
                 exit(0)
+            elif expect_argument:
+                if 'global' not in cmd_line_args:
+                    cmd_line_args['global'] = {}
+                cmd_line_args['global'][current_option] = arg
+                expect_argument = False
+            elif arg in ['--path']:
+                current_option = arg
+                expect_argument = True
             elif arg[0] != '-':
                 in_global_args = False
                 if arg not in valid_targets:
                     raise Exception(f"'{arg}' is not a valid target.\n")
                 current_target = arg
                 cmd_line_args[arg] = {}
-                continue
             else:
                 raise Exception(f"Invalid option {arg}.")
+
+            continue
 
         if expect_argument:
             cmd_line_args[current_target][current_option] = arg
