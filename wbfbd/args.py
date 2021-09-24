@@ -8,11 +8,11 @@ from pprint import pformat
 
 valid_targets = {
     'python': {
-        'Flags': {'--help': "Display help.", '--no-asserts': "Do not include asserts."},
+        'Flags': {'--help': "Display help.", '--no-asserts': "Do not include asserts. Not yet implemented."},
         'Options': {'--path': "Path for output files."},
     },
     'vhdl': {
-        'Flags': {'--help': "Display help."},
+        'Flags': {'--help': "Display help.", '--no-psl': "Do not include PSL assertions. Not yet implemented."},
         'Options': {'--path': "Path for output files."},
     },
 }
