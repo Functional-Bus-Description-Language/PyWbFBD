@@ -8,11 +8,17 @@ from pprint import pformat
 
 valid_targets = {
     'python': {
-        'Flags': {'--help': "Display help.", '--no-asserts': "Do not include asserts. Not yet implemented."},
+        'Flags': {
+            '--help': "Display help.",
+            '--no-asserts': "Do not include asserts. Not yet implemented.",
+        },
         'Options': {'--path': "Path for output files."},
     },
     'vhdl': {
-        'Flags': {'--help': "Display help.", '--no-psl': "Do not include PSL assertions. Not yet implemented."},
+        'Flags': {
+            '--help': "Display help.",
+            '--no-psl': "Do not include PSL assertions. Not yet implemented.",
+        },
         'Options': {'--path': "Path for output files."},
     },
 }
@@ -42,7 +48,8 @@ Flags:
   -v, --version  Display version.
 
 Options:
-  --path  Path for target directories with output files."""
+  --path  Path for target directories with output files.
+          The default is 'wbfbd' directory in the current working directory."""
 
 
 def print_target_help(target):
@@ -152,5 +159,12 @@ def parse(version):
         )
 
     cmd_line_args['main'] = sys.argv[-1]
+
+    # Default values handling.
+    if 'global' not in cmd_line_args:
+        cmd_line_args['global'] = {}
+
+    if '--path' not in cmd_line_args['global']:
+        cmd_line_args['global']['--path'] = 'wbfbd'
 
     return cmd_line_args
