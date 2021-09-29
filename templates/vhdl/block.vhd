@@ -8,6 +8,9 @@ library ieee;
 library general_cores;
    use general_cores.wishbone_pkg.all;
 
+library work;
+   use work.wbfbd.all;
+
 
 entity {Entity Name} is
    generic (
@@ -28,7 +31,7 @@ architecture rtl of {Entity Name} is
    constant C_MASKS     : t_wishbone_address_array({Number of Subblocks} downto 0) := ({Mask Values});
 
    constant C_REGISTER_UNINITIALIZED_VALUE : std_logic_vector({Bus Width} - 1 downto 0) := (others => 'U');
-   type t_register_vector is array (natural range {Number of Registers} - 1 downto 0) of std_logic_vector({Bus Width} - 1 downto 0);
+   subtype t_register_vector is t_slv_vector({Number of Registers} - 1 downto 0)({Bus Width} - 1 downto 0);
    signal registers : t_register_vector := ({Register Initial Values}others => C_REGISTER_UNINITIALIZED_VALUE);
 
    signal internal_master_out : t_wishbone_master_out;

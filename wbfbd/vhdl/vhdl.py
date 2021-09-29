@@ -26,6 +26,8 @@ def generate(bus, cmd_line_args_):
 
     os.makedirs(output_path, exist_ok=True)
 
+    generate_wbfbd_package()
+
     generate_entity('main', bus['main'])
 
 
@@ -131,3 +133,11 @@ def generate_block(name, elem, num_of_addr_bits, current_subblock_addr, formatte
         ] += f', {formatters["Number of Subblocks"]} => "{mask:032b}"'
 
     return current_subblock_addr
+
+
+def generate_wbfbd_package():
+    template = utils.read_template('vhdl/wbfbd.vhd', 'latin-1')
+
+    file_path = output_path + '/wbfbd.vhd'
+    with open(file_path, 'w', encoding='latin-1') as f:
+        f.write(template)
