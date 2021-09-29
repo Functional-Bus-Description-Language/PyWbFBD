@@ -10,6 +10,7 @@ BUS_WIDTH = None
 cmd_line_args = None
 output_path = None
 
+generated_files = []
 
 def generate(bus, cmd_line_args_):
     global BUS_WIDTH
@@ -84,9 +85,10 @@ def generate_entity(block_name, block):
         if elem['Base Type'] == 'status':
             status.generate(name, elem, formatters)
 
-    file_path = output_path + f'/{block_name}.vhd'
+    file_path = output_path + f'{block_name}.vhd'
     with open(file_path, 'w', encoding='latin-1') as f:
         f.write(block_template.format(**formatters))
+    generated_files.append(file_path)
 
     for name, sb in subblocks:
         generate_entity(name, sb)
@@ -139,9 +141,10 @@ def generate_block(name, elem, num_of_addr_bits, current_subblock_addr, formatte
 def generate_wbfbd_package(bus):
     template = utils.read_template('vhdl/wbfbd.vhd', 'latin-1')
 
-    file_path = output_path + '/wbfbd.vhd'
+    file_path = output_path + 'wbfbd.vhd'
     with open(file_path, 'w', encoding='latin-1') as f:
         f.write(template)
+    generated_files.append(file_path)
 
 
 def generate_constants(element):

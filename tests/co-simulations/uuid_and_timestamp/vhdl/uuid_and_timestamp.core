@@ -1,0 +1,39 @@
+CAPI=2:
+
+name: wbfbd:vhdl:uuid_and_timestamp
+
+filesets:
+  tb_cosim:
+    files:
+      - tb_cosim.vhd
+    file_type: vhdlSource-2008
+    depend:
+      - vhdl::cosim
+
+  wbfbd_dep:
+    depend:
+      - fbdl::wbfbd
+
+targets:
+  tb_cosim:
+    default_tool: ghdl
+    toplevel: tb_cosim
+    generate:
+      - wbfbd_regs
+    filesets:
+      - wbfbd_dep
+      - tb_cosim
+    hooks:
+      pre_run: [tb_cosim]
+
+generate:
+  wbfbd_regs:
+    generator: addr_gen_wb
+    parameters:
+      python: []
+      vhdl: []
+      main: ../bus.fbd
+
+scripts:
+  tb_cosim:
+    cmd: [../../../tests/co-simulations/common/python/tb_cosim.sh, uuid_and_timestamp]

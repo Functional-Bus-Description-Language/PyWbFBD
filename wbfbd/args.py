@@ -52,6 +52,7 @@ Flags:
              All necessary files can be found in the 'FuseSoc' directory in the wbfbd repository.
 
 Options:
+  --fusesoc-vlnv  FuseSoc VLNV tag.
   --path  Path for target directories with output files.
           The default is 'wbfbd' directory in the current working directory."""
 
@@ -117,7 +118,7 @@ def parse(version):
                 expect_argument = False
             elif arg in ['--fusesoc']:
                 cmd_line_args['global'][arg] = True
-            elif arg in ['--path']:
+            elif arg in ['--fusesoc-vlnv', '--path']:
                 current_option = arg
                 expect_argument = True
             elif arg[0] != '-':
@@ -136,6 +137,7 @@ def parse(version):
             expect_argument = False
         elif arg in valid_targets:
             current_target = arg
+            cmd_line_args[arg] = {}
             continue
         elif (
             arg not in valid_targets[current_target]['Options']

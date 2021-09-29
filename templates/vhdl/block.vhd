@@ -5,18 +5,21 @@
 library ieee;
    use ieee.std_logic_1164.all;
 
-library general_cores;
-   use general_cores.wishbone_pkg.all;
-
-library work;
-   use work.wbfbd.all;
-
-
 package {Entity Name}_pkg is
 
 {Constants}
 end package;
 
+
+library ieee;
+   use ieee.std_logic_1164.all;
+   use ieee.numeric_std.all;
+
+library general_cores;
+   use general_cores.wishbone_pkg.all;
+
+library work;
+   use work.wbfbd.all;
 
 use work.{Entity Name}_pkg.all;
 
@@ -85,7 +88,7 @@ begin
             and internal_master_in.rty = '0'
             and internal_master_in.ack = '0'
          then
-            internal_addr := to_integer(unsigned(internal_master_out.addr({Number of Internal Address Bits} - 1 downto 0)));
+            internal_addr := to_integer(unsigned(internal_master_out.adr({Number of Internal Address Bits} - 1 downto 0)));
 
             -- First assume there is some kind of error.
             -- For example internal address is invalid or there is a try to write status.
