@@ -8,6 +8,4 @@ package wbfbd is
 
    type t_integer_vector is array (natural range <>) of integer;
 
-   -- FBDL main package and main bus constants.
-{Constants}
 end package;

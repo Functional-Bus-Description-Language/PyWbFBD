@@ -138,11 +138,10 @@ def generate_block(name, elem, num_of_addr_bits, current_subblock_addr, formatte
 
 def generate_wbfbd_package(bus):
     template = utils.read_template('vhdl/wbfbd.vhd', 'latin-1')
-    formatters= {'Constants': generate_constants(bus)}
 
     file_path = output_path + '/wbfbd.vhd'
     with open(file_path, 'w', encoding='latin-1') as f:
-        f.write(template.format(**formatters))
+        f.write(template)
 
 
 def generate_constants(element):
