@@ -26,7 +26,7 @@ def generate(bus, cmd_line_args_):
 
     os.makedirs(output_path, exist_ok=True)
 
-    generate_wbfbd_package()
+    generate_wbfbd_package(bus['main'])
 
     generate_entity('main', bus['main'])
 
@@ -135,9 +135,22 @@ def generate_block(name, elem, num_of_addr_bits, current_subblock_addr, formatte
     return current_subblock_addr
 
 
-def generate_wbfbd_package():
+def generate_wbfbd_package(bus):
     template = utils.read_template('vhdl/wbfbd.vhd', 'latin-1')
+    formatters= {'Constants': ''}
+
+    if 'Constants' in bus:
+        for name, val in bus['Constants'].items():
+            name.upper()
+            if not name.startswith('C_'):
+                name = 'C_' + name
+
+            type_ = type(val)
+            if type_ == int:
+                declaration = f"   constant {name} : integer := {val};\n"
+
+            formatters['Constants'] += declaration
 
     file_path = output_path + '/wbfbd.vhd'
     with open(file_path, 'w', encoding='latin-1') as f:
-        f.write(template)
+        f.write(template.format(**formatters))
