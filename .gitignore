@@ -3,3 +3,5 @@ dist/
 output/
 wbfbd.egg-info/
 bus.fbd
+build/
+_fsva/
