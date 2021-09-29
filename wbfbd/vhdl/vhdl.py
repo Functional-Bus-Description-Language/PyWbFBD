@@ -42,6 +42,7 @@ def generate_entity(block_name, block):
         'Number of Internal Address Bits': math.ceil(
             math.log(block['Sizes']['Own'], 2)
         ),
+        'Constants': generate_constants(block),
         'Entity Subblock Ports': '',
         'Entity Functional Ports': '',
         'Crossbar Subblock Ports': '',
@@ -97,10 +98,10 @@ def generate_block(name, elem, num_of_addr_bits, current_subblock_addr, formatte
 
     formatters[
         'Entity Subblock Ports'
-    ] += f";\n      {name}_master_o : out t_wishbone_master_out_array({count} - 1 downto 0)"
+    ] += f";\n      {name}_master_o : out t_wishbone_master_out_array({count - 1} downto 0)"
     formatters[
         'Entity Subblock Ports'
-    ] += f";\n      {name}_master_i : in  t_wishbone_master_in_array ({count} - 1 downto 0)"
+    ] += f";\n      {name}_master_i : in  t_wishbone_master_in_array ({count - 1} downto 0)"
 
     if count == 1:
         formatters[
@@ -137,10 +138,18 @@ def generate_block(name, elem, num_of_addr_bits, current_subblock_addr, formatte
 
 def generate_wbfbd_package(bus):
     template = utils.read_template('vhdl/wbfbd.vhd', 'latin-1')
-    formatters= {'Constants': ''}
+    formatters= {'Constants': generate_constants(bus)}
 
-    if 'Constants' in bus:
-        for name, val in bus['Constants'].items():
+    file_path = output_path + '/wbfbd.vhd'
+    with open(file_path, 'w', encoding='latin-1') as f:
+        f.write(template.format(**formatters))
+
+
+def generate_constants(element):
+    code = ''
+
+    if 'Constants' in element:
+        for name, val in element['Constants'].items():
             name.upper()
             if not name.startswith('C_'):
                 name = 'C_' + name
@@ -148,9 +157,19 @@ def generate_wbfbd_package(bus):
             type_ = type(val)
             if type_ == int:
                 declaration = f"   constant {name} : integer := {val};\n"
+            elif type_ == list:
+                inner_type = type(val[0])
+                if inner_type == int:
+                    declaration = f"   constant {name} : t_integer_vector := ("
+                    for i, v in enumerate(val):
+                        declaration += f"{i} => {v}, "
+                    declaration = declaration[:-2]
+                    declaration += ");\n"
+                else:
+                    raise Exception(f"{inner_type} not implemented.")
+            else:
+                raise Exception(f"{type_} not implemented.")
 
-            formatters['Constants'] += declaration
+            code += declaration
 
-    file_path = output_path + '/wbfbd.vhd'
-    with open(file_path, 'w', encoding='latin-1') as f:
-        f.write(template.format(**formatters))
+    return code

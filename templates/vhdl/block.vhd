@@ -12,6 +12,15 @@ library work;
    use work.wbfbd.all;
 
 
+package {Entity Name}_pkg is
+
+{Constants}
+end package;
+
+
+use work.{Entity Name}_pkg.all;
+
+
 entity {Entity Name} is
    generic (
       G_REGISTERED : boolean := true
