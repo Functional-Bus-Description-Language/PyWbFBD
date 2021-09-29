@@ -46,6 +46,10 @@ Usage:
 Flags:
   -h, --help     Display help.
   -v, --version  Display version.
+  --fusesoc  Generate FuseSoc '.core' file.
+             This flag rather should not be set manually.
+             It is recommended to use wbfbd as a generator inside FuseSoc.
+             All necessary files can be found in the 'FuseSoc' directory in the wbfbd repository.
 
 Options:
   --path  Path for target directories with output files.
@@ -89,7 +93,7 @@ def parse(version):
             else:
                 raise Exception(f"'{arg}' is not a valid target.\n")
 
-    cmd_line_args = {}
+    cmd_line_args = {'global': {}}
     current_target = None
     current_option = None
     expect_argument = False
@@ -109,10 +113,10 @@ def parse(version):
                 print(version)
                 exit(0)
             elif expect_argument:
-                if 'global' not in cmd_line_args:
-                    cmd_line_args['global'] = {}
                 cmd_line_args['global'][current_option] = arg
                 expect_argument = False
+            elif arg in ['--fusesoc']:
+                cmd_line_args['global'][arg] = True
             elif arg in ['--path']:
                 current_option = arg
                 expect_argument = True
@@ -161,9 +165,6 @@ def parse(version):
     cmd_line_args['main'] = sys.argv[-1]
 
     # Default values handling.
-    if 'global' not in cmd_line_args:
-        cmd_line_args['global'] = {}
-
     if '--path' not in cmd_line_args['global']:
         cmd_line_args['global']['--path'] = 'wbfbd'
 
