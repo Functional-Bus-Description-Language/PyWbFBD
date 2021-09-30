@@ -50,6 +50,7 @@ Flags:
              This flag rather should not be set manually.
              It is recommended to use wbfbd as a generator inside FuseSoc.
              All necessary files can be found in the 'FuseSoc' directory in the wbfbd repository.
+  --times  Print compile and generate times.
 
 Options:
   --fusesoc-vlnv  FuseSoc VLNV tag.
@@ -116,7 +117,7 @@ def parse(version):
             elif expect_argument:
                 cmd_line_args['global'][current_option] = arg
                 expect_argument = False
-            elif arg in ['--fusesoc']:
+            elif arg in ['--fusesoc', '--times']:
                 cmd_line_args['global'][arg] = True
             elif arg in ['--fusesoc-vlnv', '--path']:
                 current_option = arg
