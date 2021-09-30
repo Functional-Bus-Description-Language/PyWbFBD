@@ -29,7 +29,51 @@ def generate(bus, cmd_line_args_):
 
     generate_wbfbd_package(bus['main'])
 
-    generate_entity('main', bus['main'])
+    entities = collect_entities(bus['main'])
+
+    resolve_entity_name_conflicts(entities)
+
+    for entity in entities:
+        generate_entity(entity['Name'], entity['Entity'])
+
+
+def collect_entities(element, entities=None, path=None):
+    """Collect entities that should be generated."""
+    if not entities:
+        entities = [{'Name': 'main', 'Path': 'main', 'Entity': element}]
+        path = ['main']
+    else:
+        item = {'Name': path[-1], 'Path': '_'.join(path), 'Entity': element}
+        entities.append(item)
+
+    for name, elem in element['Elements'].items():
+        if elem['Base Type'] == 'block':
+            path.append(name)
+            entities = collect_entities(elem, entities, path)
+            path.pop(-1)
+
+    return entities
+
+
+def resolve_entity_name_conflicts(entities):
+    for i, e1 in enumerate(entities[:-1]):
+        conflicts = [e2 for e2 in entities[i + 1:] if e2['Name'] == e1['Name']]
+        conflicts.append(e1)
+
+        if len(conflicts) == 1:
+            continue
+
+        paths = [e['Path'].split('_') for e in conflicts]
+        lengths = [len(path) for path in paths]
+        max_length = max(lengths)
+        new_names = [e['Name'] for e in conflicts]
+        for j in range(2, max_length):
+            new_names = ['_'.join(path[-j:]) if j <= len(path) else '_'.join(path) for path in paths]
+            if len(new_names) == len(set(new_names)):
+                break
+
+        for i, e in enumerate(conflicts):
+            e['Name'] = new_names[i]
 
 
 def generate_entity(block_name, block):
@@ -89,9 +133,6 @@ def generate_entity(block_name, block):
     with open(file_path, 'w', encoding='latin-1') as f:
         f.write(block_template.format(**formatters))
     generated_files.append(file_path)
-
-    for name, sb in subblocks:
-        generate_entity(name, sb)
 
 
 def generate_block(name, elem, num_of_addr_bits, current_subblock_addr, formatters):
