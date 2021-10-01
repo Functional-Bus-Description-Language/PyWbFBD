@@ -7,6 +7,7 @@ import fbdl
 import yaml
 
 from wbfbd import args
+from wbfbd.python import python
 from wbfbd.vhdl import vhdl
 
 
@@ -19,6 +20,9 @@ def main():
 
     if 'vhdl' in cmd_line_args:
         vhdl.generate(bus, cmd_line_args)
+
+    if 'python' in cmd_line_args:
+        python.generate(bus, cmd_line_args)
 
     if '--fusesoc' in cmd_line_args['global']:
         generate_fusesoc_core_file(cmd_line_args)

@@ -93,7 +93,8 @@ begin
             -- First assume there is some kind of error.
             -- For example internal address is invalid or there is a try to write status.
             internal_master_in.err <= '1';
-            internal_master_in.dat <= (others => '-');
+            -- '0' for security reasons, '-' can lead to the information leak.
+            internal_master_in.dat <= (others => '0');
             internal_master_in.ack <= '0';
 
             {Statuses Access}
