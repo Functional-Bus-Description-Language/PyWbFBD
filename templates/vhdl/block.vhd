@@ -44,7 +44,7 @@ architecture rtl of {Entity Name} is
 
    constant C_REGISTER_UNINITIALIZED_VALUE : std_logic_vector({Bus Width} - 1 downto 0) := (others => 'U');
    subtype t_register_vector is t_slv_vector({Number of Registers} - 1 downto 0)({Bus Width} - 1 downto 0);
-   signal registers : t_register_vector := ({Register Initial Values}others => C_REGISTER_UNINITIALIZED_VALUE);
+   signal registers : t_register_vector := ({Default Values}others => C_REGISTER_UNINITIALIZED_VALUE);
 
    signal internal_master_out : t_wishbone_master_out;
    signal internal_master_in  : t_wishbone_master_in;
