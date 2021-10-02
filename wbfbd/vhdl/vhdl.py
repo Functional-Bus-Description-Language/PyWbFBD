@@ -224,11 +224,18 @@ def generate_constants(element):
 def compose_default_values(formatters, default_values):
     code = ''
     for addr, values in default_values.items():
-        code += f'{addr} => ('
-        for v in values:
-            width = v[1][0] - v[1][1] + 1
-            code += f'{v[1][0]} downto {v[1][1]} => "{v[0]:0{width}b}", '
-        code = code[:-2]
+        if type(addr) == int:
+            code += f'{addr} => ('
+            for v in values:
+                width = v[1][0] - v[1][1] + 1
+                code += f'{v[1][0]} downto {v[1][1]} => "{v[0]:0{width}b}", '
+            code = code[:-2]
+        else:
+            code += f'{addr[0]} to {addr[1]} => ('
+            for v in values:
+                width = v[1][0] - v[1][1] + 1
+                code += f'{v[1][0]} downto {v[1][1]} => "{v[0]:0{width}b}", '
+            code = code[:-2]
         code += '), '
 
     formatters['Default Values'] += code
