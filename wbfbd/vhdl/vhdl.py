@@ -21,7 +21,7 @@ def generate(bus, cmd_line_args_):
 
     global output_path
     if '--path' in cmd_line_args['vhdl']:
-        output_path = cmd_line_args['vhdl']['--path']
+        output_path = cmd_line_args['vhdl']['--path'] + '/'
     else:
         output_path = cmd_line_args['global']['--path'] + '/vhdl/'
 
@@ -97,7 +97,7 @@ def generate_entity(block_name, block):
         'Number of Subblocks': 0,
         'Statuses Access': '-- Statuses access.\n',
         'Statuses Routing': '-- Statuses routing.\n',
-        'Register Initial Values': '',
+        'Default Values': '',
     }
 
     num_of_addr_bits = int(math.log(block['Sizes']['Block Aligned'], 2))
@@ -125,9 +125,12 @@ def generate_entity(block_name, block):
             name, sb, num_of_addr_bits, current_subblock_addr, formatters
         )
 
+    default_values = {}
     for name, elem in block['Elements'].items():
         if elem['Base Type'] == 'status':
-            status.generate(name, elem, formatters)
+            status.generate(name, elem, formatters, default_values)
+
+    compose_default_values(formatters, default_values)
 
     file_path = output_path + f'{block_name}.vhd'
     with open(file_path, 'w', encoding='latin-1') as f:
@@ -216,3 +219,17 @@ def generate_constants(element):
             code += declaration
 
     return code
+
+
+def compose_default_values(formatters, default_values):
+    # Trivial approach will need improvements in the future.
+    code = ''
+    for addr, values in default_values.items():
+        code += f'{addr} => ('
+        for v in values:
+            width = v[1][0] - v[1][1] + 1
+            code += f'{v[1][0]} downto {v[1][1]} => "{v[0]:0{width}b}", '
+        code = code[:-2]
+        code += '), '
+
+    formatters['Default Values'] += code
