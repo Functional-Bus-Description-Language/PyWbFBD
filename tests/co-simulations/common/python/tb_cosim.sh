@@ -6,6 +6,7 @@ LOG_FILE="$ENTITY.log"
 PYTHON_FILE="../../../tests/co-simulations/$ENTITY/python/tb_cosim.py"
 
 export PYTHONPATH="$PYTHONPATH:$PWD/../../../tests/co-simulations/common/python/"
+export PYTHONPATH="$PYTHONPATH:$PWD/../../wbfbd/$ENTITY/python/"
 
 mkdir -p $DIR
 if [ ! -f "$PYTHON_FILE" ]; then
