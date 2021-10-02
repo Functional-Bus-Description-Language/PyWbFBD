@@ -15,7 +15,7 @@ filesets:
       - fbdl::wbfbd
 
 targets:
-  tb_cosim:
+  tb_cosim_python:
     default_tool: ghdl
     toplevel: tb_cosim
     generate:
@@ -25,15 +25,31 @@ targets:
       - tb_cosim
     hooks:
       pre_run: [tb_cosim]
+    parameters:
+      - G_SW_FW_FIFO_PATH=/tmp/PyWbFBD/uuid_and_timestamp_python_vhdl
+      - G_FW_SW_FIFO_PATH=/tmp/PyWbFBD/uuid_and_timestamp_vhdl_python
 
 generate:
   wbfbd_regs:
     generator: addr_gen_wb
     parameters:
-      python: [--path, ../../../../build/wbfbd/uuid_and_timestamp/python]
+      python: [--path, ../../../../build/wbfbd/uuid_and_timestamp/python/vhdl]
       vhdl: []
       main: ../bus.fbd
 
+parameters:
+  G_SW_FW_FIFO_PATH:
+    datatype: str
+    paramtype: generic
+  G_FW_SW_FIFO_PATH:
+    datatype: str
+    paramtype: generic
+
 scripts:
   tb_cosim:
-    cmd: [../../../tests/co-simulations/common/python/tb_cosim.sh, uuid_and_timestamp]
+    cmd:
+      - ../../../tests/co-simulations/common/python/tb_cosim.sh
+      - uuid_and_timestamp
+      - vhdl
+      - /tmp/PyWbFBD/uuid_and_timestamp_python_vhdl
+      - /tmp/PyWbFBD/uuid_and_timestamp_vhdl_python

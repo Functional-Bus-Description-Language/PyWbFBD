@@ -15,7 +15,7 @@ filesets:
       - fbdl::wbfbd
 
 targets:
-  tb_cosim:
+  tb_cosim_python:
     default_tool: ghdl
     toplevel: tb_cosim
     generate:
@@ -25,15 +25,31 @@ targets:
       - tb_cosim
     hooks:
       pre_run: [tb_cosim]
+    parameters:
+      - G_SW_FW_FIFO_PATH=/tmp/PyWbFBD/status_array_single_python_vhdl
+      - G_FW_SW_FIFO_PATH=/tmp/PyWbFBD/status_array_single_vhdl_python
 
 generate:
   wbfbd_regs:
     generator: addr_gen_wb
     parameters:
-      python: [--path, ../../../../build/wbfbd/status_array_single/python]
+      python: [--path, ../../../../build/wbfbd/status_array_single/python/vhdl]
       vhdl: []
       main: ../bus.fbd
 
+parameters:
+  G_SW_FW_FIFO_PATH:
+    datatype: str
+    paramtype: generic
+  G_FW_SW_FIFO_PATH:
+    datatype: str
+    paramtype: generic
+
 scripts:
   tb_cosim:
-    cmd: [../../../tests/co-simulations/common/python/tb_cosim.sh, status_array_single]
+    cmd:
+      - ../../../tests/co-simulations/common/python/tb_cosim.sh
+      - status_array_single
+      - vhdl
+      - /tmp/PyWbFBD/status_array_single_python_vhdl
+      - /tmp/PyWbFBD/status_array_single_vhdl_python

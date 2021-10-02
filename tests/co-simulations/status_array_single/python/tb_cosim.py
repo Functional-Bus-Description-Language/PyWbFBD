@@ -1,3 +1,5 @@
+import sys
+
 import logging as log
 log.basicConfig(
     level=log.DEBUG,
@@ -9,8 +11,8 @@ import random
 from cosim_interface import CosimInterface
 import wbfbd
 
-WRITE_FIFO_PATH = "/tmp/PyWbFBD/status_array_single_vhdl"
-READ_FIFO_PATH  = "/tmp/PyWbFBD/status_array_single_python"
+WRITE_FIFO_PATH = sys.argv[1]
+READ_FIFO_PATH  = sys.argv[2]
 
 CLOCK_PERIOD_40 = 25
 
