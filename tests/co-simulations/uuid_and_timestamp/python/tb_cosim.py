@@ -4,8 +4,10 @@ log.basicConfig(
     format="%(module)s:%(levelname)s:%(message)s",
     datefmt="%H:%M:%S",
 )
+import random
 
 from cosim_interface import CosimInterface
+import wbfbd
 
 WRITE_FIFO_PATH = "/tmp/PyWbFBD/uuid_and_timestamp_vhdl"
 READ_FIFO_PATH  = "/tmp/PyWbFBD/uuid_and_timestamp_python"
@@ -14,7 +16,7 @@ CLOCK_PERIOD_40 = 25
 
 
 def delay_function():
-    return CLOCK_PERIOD_40 * random.randrange(10,40)
+    return CLOCK_PERIOD_40 * random.randrange(10, 40)
 
 
 try:
@@ -22,7 +24,10 @@ try:
 
     cosim_interface = CosimInterface(WRITE_FIFO_PATH, READ_FIFO_PATH, delay_function, True)
 
-    #agwb_top = agwb.top(cosim_interface, 0)
+    main = wbfbd.class_main(cosim_interface)
+
+    print(f"UUID: {main.x_uuid_x.read()}")
+    print(f"Timestamp: {main.x_timestamp_x.read()}")
 
     cosim_interface.wait(10 * CLOCK_PERIOD_40)
     log.info("Ending cosimulation")

@@ -30,7 +30,7 @@ generate:
   wbfbd_regs:
     generator: addr_gen_wb
     parameters:
-      python: []
+      python: [--path, ../../../../build/wbfbd/uuid_and_timestamp/python]
       vhdl: []
       main: ../bus.fbd
 
