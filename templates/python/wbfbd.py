@@ -1,19 +1,14 @@
 BUS_WIDTH = {Bus Width}
 
-class StatusSingle:
-    def __init__(self, interface, base_addr, registers):
+class StatusSingleSingle:
+    def __init__(self, interface, base_addr, addr, mask):
         self.interface = interface
-
-        if len(regs) == 1:
-            self.mask = ((1 << (self.regs[0][1][0] + 1)) - 1) ^ ((1 << self.regs[0][1][1]) - 1)
-        else:
-            self.mask = ((1 << (self.regs[-1][1][0] + 1)) - 1) ^ ((1 << self.regs[-1][1][1]) - 1)
+        self.addr = base_addr + addr
+        self.mask = ((1 << (mask[0] + 1)) - 1) ^ ((1 << mask[1]) - 1)
+        self.shift = mask[1]
 
     def read(self):
-        if len(regs) == 1:
-            return (interface.read(regs[0][0]) & self.masks[0]) >> self.regs[0][1][1]
-        else:
-            raise Exception("TODO Implement")
+        return (self.interface.read(self.addr) & self.mask) >> self.shift
 
 
 {Code}
