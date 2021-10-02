@@ -1,0 +1,20 @@
+CAPI=2:
+
+name: fbdl::wbfbd
+
+filesets:
+  rtl:
+    depend:
+      - cern:general_cores:xwb_register:0.0.0
+      - cern:general_cores:xwb_crossbar:0.0.0
+
+generators:
+  addr_gen_wb:
+    interpreter: python3
+    command: wbfbd.py
+    description: Generator for Functional Bus Description Language compiler for Wishbone backend.
+
+targets:
+  default:
+    filesets:
+      - rtl
