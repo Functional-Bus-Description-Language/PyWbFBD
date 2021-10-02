@@ -72,13 +72,19 @@ def generate_statuses(element, base_addr):
             continue
 
         count = elem.get('Count')
-        strategy = elem['Access']['Strategy']
-        mask = elem['Access']['Mask']
-        addr = elem['Access']['Address']
+        width = elem['Properties']['width']
+        access = elem['Access']
+        strategy = access['Strategy']
+        mask = access.get('Mask')
+        addr = access['Address']
+        items_per_access = access.get('Items per Access')
+
         if count is None and strategy == 'Single':
             code += indent + f"self.{name} = StatusSingleSingle(interface, {base_addr + addr}, {mask})\n"
         if count is not None and strategy == 'Single':
             code += indent + f"self.{name} = StatusArraySingle(interface, {base_addr + addr}, {mask}, {count})\n"
+        if count is not None and strategy == 'Multiple':
+            code += indent + f"self.{name} = StatusArrayMultiple(interface, {base_addr + addr}, {width}, {count}, {items_per_access})\n"
 
     return code
 

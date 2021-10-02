@@ -1,11 +1,11 @@
-def generate(name, elem, formatters, default_values):
+def generate(name, elem, formatters):
     if 'Count' in elem:
-        generate_array(name, elem, formatters, default_values)
+        generate_array(name, elem, formatters)
     else:
-        generate_single(name, elem, formatters, default_values)
+        generate_single(name, elem, formatters)
 
 
-def generate_single(name, elem, formatters, default_values):
+def generate_single(name, elem, formatters):
     if name not in ['x_uuid_x', 'x_timestamp_x']:
         formatters[
             'Entity Functional Ports'
@@ -14,12 +14,12 @@ def generate_single(name, elem, formatters, default_values):
     strategy = elem['Access']['Strategy']
 
     if strategy == 'Single':
-        generate_single_single(name, elem, formatters, default_values)
+        generate_single_single(name, elem, formatters)
     elif strategy == 'Linear':
-        generate_single_linear(name, elem, formatters, default_values)
+        generate_single_linear(name, elem, formatters)
 
 
-def generate_single_single(name, elem, formatters, default_values):
+def generate_single_single(name, elem, formatters):
     addr = elem['Access']['Address']
     mask = elem['Access']['Mask']
 
@@ -27,10 +27,6 @@ def generate_single_single(name, elem, formatters, default_values):
             {name} : if internal_addr = {addr} then
                internal_master_in.dat({mask[0]} downto {mask[1]}) <= registers(internal_addr)({mask[0]} downto {mask[1]});
 """
-
-    routing = ''
-    if name not in ['x_uuid_x', 'x_timestamp_x']:
-        routing = f"   registers({addr})({mask[0]} downto {mask[1]}) <= {name}_i({mask[0]} downto {mask[1]});\n"
 
     access += """               if internal_master_out.we = '0' then
                   internal_master_in.ack <= '1';
@@ -40,16 +36,18 @@ def generate_single_single(name, elem, formatters, default_values):
 """
 
     formatters['Statuses Access'] += access
+
+    if name in ['x_uuid_x', 'x_timestamp_x']:
+        default = elem['Properties']['default']
+        width = elem['Properties']['width']
+        routing = f'   registers({addr})({mask[0]} downto {mask[1]}) <= "{default:0{width}b}";\n'
+    else:
+        routing = f"   registers({addr})({mask[0]} downto {mask[1]}) <= {name}_i({mask[0]} downto {mask[1]});\n"
+
     formatters['Statuses Routing'] += routing
 
-    if 'default' not in elem['Properties']:
-        return
 
-    if addr not in default_values:
-        default_values[addr] = [(elem['Properties']['default'], mask)]
-
-
-def generate_single_linear(name, elem, formatters, default_values):
+def generate_single_linear(name, elem, formatters):
     addr_lower = elem['Access']['Address']
     addr_upper = addr_lower + elem['Access']['Count'] - 1
     mask = elem['Access']['Mask']
@@ -75,19 +73,19 @@ def generate_single_linear(name, elem, formatters, default_values):
     formatters['Statuses Routing'] += routing
 
 
-def generate_array(name, elem, formatters, default_values):
+def generate_array(name, elem, formatters):
     formatters[
         'Entity Functional Ports'
     ] += f";\n      {name}_i : in t_slv_vector({elem['Count'] - 1} downto 0)({elem['Properties']['width'] - 1} downto 0)"
 
     strategy = elem['Access']['Strategy']
     if strategy == 'Single':
-        generate_array_single(name, elem, formatters, default_values)
+        generate_array_single(name, elem, formatters)
     if strategy == 'Multiple':
-        generate_array_multiple(name, elem, formatters, default_values)
+        generate_array_multiple(name, elem, formatters)
 
 
-def generate_array_single(name, elem, formatters, default_values):
+def generate_array_single(name, elem, formatters):
     base_addr = elem['Access']['Address']
     count = elem['Access']['Count']
     width = elem['Properties']['width']
@@ -113,11 +111,6 @@ def generate_array_single(name, elem, formatters, default_values):
 
     formatters['Statuses Access'] += access
 
-    if 'default' not in elem['Properties']:
-        return
-
-    default_values[(base_addr, base_addr + count - 1)] = [(elem['Properties']['default'], mask)]
-
 
 def generate_array_multiple(name, elem, formatters):
     base_addr = elem['Access']['Address']
@@ -125,6 +118,43 @@ def generate_array_multiple(name, elem, formatters):
     width = elem['Properties']['width']
     items_per_access = elem['Access']['Items per Access']
     regs_count = elem['Access']['Count']
+
+    if count % items_per_access == 0:
+        access = f"""
+            {name} : if {base_addr} <= internal_addr and internal_addr <= {base_addr + regs_count - 1} then
+               internal_master_in.dat({width * items_per_access - 1} downto 0) <= registers(internal_addr)({width * items_per_access - 1} downto 0);
+               if internal_master_out.we = '0' then
+                  internal_master_in.ack <= '1';
+                  internal_master_in.err <= '0';
+               end if;
+            end if;
+"""
+    elif count < items_per_access:
+        access = f"""
+            {name} : if internal_addr = {base_addr} then
+               internal_master_in.dat({width * count - 1} downto 0) <= registers(internal_addr)({width * count - 1} downto 0);
+               if internal_master_out.we = '0' then
+                  internal_master_in.ack <= '1';
+                  internal_master_in.err <= '0';
+               end if;
+            end if;
+"""
+    else:
+        access = f"""
+            {name} : if {base_addr} <= internal_addr and internal_addr <= {base_addr + regs_count - 1} then
+               if internal_addr = {base_addr + regs_count - 1} then
+                  internal_master_in.dat({width * (count % items_per_access) - 1} downto 0) <= registers(internal_addr)({width * (count % items_per_access) - 1} downto 0);
+               else
+                  internal_master_in.dat({width * items_per_access - 1} downto 0) <= registers(internal_addr)({width * items_per_access - 1} downto 0);
+               end if;
+               if internal_master_out.we = '0' then
+                  internal_master_in.ack <= '1';
+                  internal_master_in.err <= '0';
+               end if;
+            end if;
+"""
+
+    formatters['Statuses Access'] += access
 
     if count % items_per_access == 0:
         routing = f"""

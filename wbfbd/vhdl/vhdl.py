@@ -128,7 +128,7 @@ def generate_entity(block_name, block):
     default_values = {}
     for name, elem in block['Elements'].items():
         if elem['Base Type'] == 'status':
-            status.generate(name, elem, formatters, default_values)
+            status.generate(name, elem, formatters)
 
     compose_default_values(formatters, default_values)
 
