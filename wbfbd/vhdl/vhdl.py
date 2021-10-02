@@ -222,7 +222,6 @@ def generate_constants(element):
 
 
 def compose_default_values(formatters, default_values):
-    # Trivial approach will need improvements in the future.
     code = ''
     for addr, values in default_values.items():
         code += f'{addr} => ('
